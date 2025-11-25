@@ -1,0 +1,58 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: ms-gateway-server
+
+  cloud:
+    gateway:
+
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:4200"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+
+      routes:
+        - id: ms-mariopago
+          uri: lb://ms-mariopago
+          predicates:
+            - Path=/pagos/**
+          filters:
+            - name: AuthFilter
+
+
+
+
+
+        - id: ms-auth-service
+          uri: lb://ms-auth-service
+          predicates:
+            - Path=/auth/**
+          filters: []
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8000/eureka}
+
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
